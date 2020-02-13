@@ -36,6 +36,7 @@ COPY run /root/
 COPY dropbox-wrapper /usr/bin/dropbox
 #
 
+RUN dnf -y install libatomic
 WORKDIR /dbox/Dropbox
 EXPOSE 17500
 VOLUME ["/dbox/.dropbox", "/dbox/Dropbox"]
