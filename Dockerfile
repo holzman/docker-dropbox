@@ -1,16 +1,17 @@
-FROM fedora:23
+FROM fedora:33
 MAINTAINER Burt Holzman <holzman@gmail.com>
 
-RUN dnf -y install tar
-RUN curl -L "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
-RUN curl -L "https://www.dropbox.com/download?dl=packages/dropbox.py" > /usr/sbin/dropbox && chmod 755 /usr/sbin/dropbox
-RUN dnf -y install python ca-certificates python-gpgme
+RUN curl -s -L "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+RUN curl -s -L "https://www.dropbox.com/download?dl=packages/dropbox.py" > /usr/sbin/dropbox && chmod 755 /usr/sbin/dropbox
+RUN dnf -y install python ca-certificates mesa-libglapi libXext libXdamage libxshmfence libXxf86vm libatomic \
+    && dnf clean all
 
 RUN groupadd dropbox && useradd -m -d /dbox -c "Dropbox Daemon Account" -s /usr/sbin/nologin -g dropbox dropbox
 
 USER dropbox
-RUN mkdir -p /dbox/.dropbox /dbox/.dropbox-dist /dbox/Dropbox /dbox/base \
-    && echo y | dropbox start -i
+RUN mkdir -p /dbox/.dropbox /dbox/.dropbox-dist /dbox/Dropbox /dbox/base
+
+RUN echo y | dropbox start -i
 
 USER root
 #
@@ -36,7 +37,7 @@ COPY run /root/
 COPY dropbox-wrapper /usr/bin/dropbox
 #
 
-RUN dnf -y install libatomic
+
 WORKDIR /dbox/Dropbox
 EXPOSE 17500
 VOLUME ["/dbox/.dropbox", "/dbox/Dropbox"]
